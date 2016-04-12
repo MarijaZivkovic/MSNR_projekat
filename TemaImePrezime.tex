@@ -1,0 +1,184 @@
+% !TEX encoding = UTF-8 Unicode
+
+\documentclass[a4paper]{article}
+
+\usepackage{color}
+\usepackage{url}
+%\usepackage[T2A]{fontenc} % enable Cyrillic fonts
+\usepackage[utf8]{inputenc} % make weird characters work
+\usepackage{graphicx}
+
+\usepackage[english,serbian]{babel}
+%\usepackage[english,serbianc]{babel} %ukljuciti babel sa ovim opcijama, umesto gornjim, ukoliko se koristi cirilica
+
+\usepackage[unicode]{hyperref}
+\hypersetup{colorlinks,citecolor=green,filecolor=green,linkcolor=blue,urlcolor=blue}
+
+%\newtheorem{primer}{Пример}[section] %ćirilični primer
+\newtheorem{primer}{Primer}[section]
+
+\begin{document}
+
+\title{Naslov seminarskog rada\\ \small{Seminarski rad u okviru kursa\\Metodologija stručnog i naučnog rada\\ Matematički fakultet}}
+
+\author{Milomir Radojević, Marija Živković\\ milomir993@gmail.com, marijaz93@yahoo.com}
+\date{12.~april 2015.}
+\maketitle
+
+\abstract{
+Android je danas najpopularniji operativni sistem za pametne telefone i tablet računare(X). Takođe se koristi u televiziji, automobilima, digitalnim kamerama i mnogim drugim uređajima. Osim aplikacija koje služe da korisnicima olakšaju poslovanje, organizaciju obaveza ili komunikaciju, postoji veliki broj aplikacija čija je namena zabava. Aplikacije za manipulaciju multimedijalnim sadržajima i igre su samo neke od njih. Ovaj rad opisuje neke principe razvoja igara na Android platformi, daje smernice za određivanje osnovnih elemenata arhitekture igre, i prati primer implementacije konktretne igre "Battleships". Takođe se demonstrira višekorisnički režim rada aplikacije razmenom podataka preko Bluetooth-a.
+
+\tableofcontents
+
+\newpage
+
+\section{Uvod}
+\label{sec:uvod}
+Tipična arhitektura bilo koje igre izgleda ovako(X):
+\begin{enumerate}
+\item prihvatanje unosa od strane korisnika;
+\item ažuriranje stanja objekata (računanje nove pozicije objekta, provera logičkih uslova, ispitivanje kolizije i slično);
+\item emitovanje zvuka;
+\item iscrtavanje slike na ekran;
+\item ponavljanje prethodnih koraka dok traje igra.
+Jedan od osnovnih zadataka u implementaciji je izgradnja glavne petlje koja će izvršavati prethodno navedene korake. U Android-u, sve kreće od klase Activity(X). Activity uglavnom služi za interakciju sa korisnikom. Iz tog razloga Activity se stara za pravljenje prozora u koji se smešta korisnički interfejs (View). View(X) je mesto gde se prihvata unos od strane korisnika i gde grafički elementi bivaju prikazani. Prethodni opis je prikazan na dijagramu(X). Prozor (koji u stvari predstavlja klasu koja nasleđuje View), kao atribut sadrži instancu klase (koja nasleđuje klasu Thread) koja periodično poziva metode update() i draw() koji ažuriraju stanje i prikazuju elemente prozora. Prihvatanje unosa se vrši pomoću metoda onTouchEvent() dok se iscrtavanje na ekran vrši korišćenjem klase Canvas. Višekorisnički režim se ostvaruje pomoću klasa iz paketa android.bluetooth.
+\end{enumerate}
+
+
+\section{Slike i tabele}
+\label{slike_i_tabele}
+
+Slike i tabele treba da budu u svom okruženju, sa odgovarajućim naslovima, obeležene labelom da koje omogućava referenciranje. 
+
+\begin{primer} Ovako se ubacuje slika. Obratiti pažnju da je dodato i 
+\begin{verbatim}
+\usepackage{graphicx}
+\end{verbatim}
+
+\begin{figure}[h!]
+\begin{center}
+%\includegraphics[scale=0.75]{panda.jpg}
+\end{center}
+\caption{Pande}
+\label{fig:pande}
+\end{figure}
+
+Na svaku sliku neophodno je referisati se negde u tekstu. Na primer, na slici \ref{fig:pande} prikazane su pande. 
+\end{primer}
+
+\begin{primer} I tabele treba da budu u svom okruženju, i na njih je neophodno referisati se u tekstu. Na primer, u tabeli \ref{tab:tabela1} su prikazana različita poravnanja u tabelama.
+
+\begin{table}[h!]
+\begin{center}
+\caption{Razlčita poravnanja u okviru iste tabele ne treba koristiti jer su nepregledna.}
+\begin{tabular}{|c|l|r|} \hline
+centralno poravnanje& levo poravnanje& desno poravnanje\\ \hline
+a &b&c\\ \hline
+d &e&f\\ \hline
+\end{tabular}
+\label{tab:tabela1}
+\end{center}
+\end{table}
+
+\end{primer}
+
+
+
+
+
+\section{Glavna petlja(X)}
+\label{sec:naslov1}
+
+
+Za prozor u Activity klasi stvaramo klasu GameSurface koja nasleđuje SurfaceView (i implementira SurfaceHolder.Callback da mogla da reaguje na događaje kao što su promena orijentacije uređaja ili pravljenje i uništavanje GameSurface objekta). Pri pravljenu GameSurface objekta, pokreće se klasa koja sadrži glavnu petlju, dok se pri uništenju ona prekida. U toj klasi se nalazi beskonačna petlja u kojoj se redom u određenom vremenskom intervalu pozivaju update() i draw() metodi GameSurface objekta. GameSurface objekat poziva odgovarajuće update() i draw() metode za sve svoje elemente.
+
+
+\subsection{Prihvatanje unosa od korisnika(X)}
+\label{subsec:podnaslov1}
+
+Prihvatanje unosa se vrši metodom onTouchEvent tako što se za svaki događaj prosledi informacija odgovarajućem objektu koji će da ga obradi.
+
+\subsection{Iscrtavanje slike na ekran(X)}
+\label{subsec:podnaslov2}
+
+Iscrtavanje se vrši pomoću metoda draw() i objekta Canvas koji omogućuje prikazivanje slika i menjanje piksela na ekranu. Kada se pozove metod draw() GameSurface objekta i prosledi mu se Canvas, Canvas se zaključa i GameSurface objekat može da crta po njemu. Zaključavanjem se obezbeđuje da je Canvas nepromenljiv dok se po njemu crta.
+
+\section{Ostvarivanje višekorisničkog režima preko Bluetooth-a(X)}
+\label{sec:naslov2}
+
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+
+\subsection{... podnaslov}
+\label{subsec:podnaslovN}
+
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+
+\section{n-ti naslov}
+\label{sec:naslovN}
+
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+
+\subsection{... podnaslov}
+\label{subsec:podnaslovK}
+
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+
+\subsection{... podnaslov}
+\label{subsec:podnaslovM}
+
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+
+\section{Poslednji naslov}
+\label{sec:naslovM}
+
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+Ovde pišem tekst. 
+
+\section{Zaključak}
+\label{sec:zakljucak}
+
+Prikazana je jednostavna arhitektura koja može biti upotrebljena za razvoj velikog broja Android igara i sličnih aplikacija. Naveden je jedan način na koji je moguće realizovati glavnu petlju, prihvatanje korisničkog unosa, prikazivanje grafičkih elemenata na ekran i povezivanje dva uređaja preko mreže. Opisani su elementi koji predstavljaju temelj na kom se može zasnovati širok spektar različitih aplikacija. Višestruka upotrebljivost se postiže nadogradnjom nekih od prethodno opisanih koncepata i dodavanjem elemenata koji unapređuju mogućnosti animacije, simulacije fizičkih zakona i drugih poboljšanja. Ovaj rad je pokušaj da se čitaocima koji poznaju programski jezik Java a koji se nisu ranije susretali sa razvojem aplikacija za Android platformu, približi proces implementacije jednostavne igre i pokažu neke osnovne karakteristike programiranja za Android.
+
+
+\addcontentsline{toc}{section}{Literatura}
+\appendix
+\bibliography{seminarski} 
+\bibliographystyle{plain}
+
+\appendix
+\section{Dodatak}
+Ovde pišem dodatne stvari, ukoliko za time ima potrebe.
+Ovde pišem dodatne stvari, ukoliko za time ima potrebe.
+Ovde pišem dodatne stvari, ukoliko za time ima potrebe.
+Ovde pišem dodatne stvari, ukoliko za time ima potrebe.
+Ovde pišem dodatne stvari, ukoliko za time ima potrebe.
+
+
+\end{document}
