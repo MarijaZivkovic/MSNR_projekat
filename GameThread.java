@@ -3,12 +3,9 @@ package com.example.milomir93.battleships;
 import android.graphics.Canvas;
 import android.view.SurfaceHolder;
 
-/**
- * Created by Milomir93 on 7.4.2016..
- */
 public class GameThread extends Thread {
     private int FPS = 30;
-    private boolean running;
+    public boolean running = true;
     private SurfaceHolder surfaceHolder;
     private GameSurface gameSurface;
     public static Canvas canvas;
@@ -37,10 +34,7 @@ public class GameThread extends Thread {
                     this.gameSurface.draw(canvas);
                 }
             }
-            catch (Exception e) {
-
-            }
-
+            catch (Exception e) {}
             finally{
                 if(canvas != null) {
                     try {
@@ -55,7 +49,7 @@ public class GameThread extends Thread {
             timeMillis = (System.nanoTime() - startTime) / 1000000;
             waitTime = targetTime - timeMillis;
 
-            try{
+            try {
                 this.sleep(waitTime);
             }
             catch(Exception e){}
