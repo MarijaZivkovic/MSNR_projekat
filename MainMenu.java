@@ -22,9 +22,9 @@ public class MainMenu {
         lastChanged = new GameButton();
         buttons = new HashSet<GameButton>();
         background = BitmapFactory.decodeResource(v.getResources(), R.drawable.menu_bg);
-        newGameButton = new GameButton(90, 200, v, GameSurface.MethodName.CREATE_GAME);
-        joinGameButton = new GameButton(90, 350, v, GameSurface.MethodName.JOIN_GAME);
-        exitGameButton = new GameButton(90, 500, v, GameSurface.MethodName.EXIT_GAME);
+        newGameButton = new GameButton(250, 40, v, GameSurface.MethodName.CREATE_GAME);
+        joinGameButton = new GameButton(250, 190, v, GameSurface.MethodName.JOIN_GAME);
+        exitGameButton = new GameButton(250, 340, v, GameSurface.MethodName.EXIT_GAME);
         buttons.add(newGameButton);
         buttons.add(joinGameButton);
         buttons.add(exitGameButton);
@@ -90,6 +90,7 @@ public class MainMenu {
         //privremeno
         Level l = new Level(new Human(), new Bot(), v);
         v.setLevel(l);
+        v.setState(GameSurface.State.LEVEL_STATE);
     }
 
     void joinGame() {

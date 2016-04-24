@@ -9,6 +9,10 @@ public class Bot extends Player {
         //
     }
 
+    public void positionShips() {
+        //
+    }
+
     public void update() {
         //
     }

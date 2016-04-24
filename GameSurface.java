@@ -7,10 +7,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 public class GameSurface extends SurfaceView implements SurfaceHolder.Callback{
-    private enum State {MENU_STATE, LEVEL_STATE};
+    public enum State {MENU_STATE, LEVEL_STATE};
     public enum MethodName {CREATE_GAME, JOIN_GAME, START_GAME, EXIT_GAME}
-    public static final int WIDTH = 480;
-    public static final int HEIGHT = 800;
+    public static final int WIDTH = 800;
+    public static final int HEIGHT = 480;
     private GameThread thread;
     private State state;
     private MainMenu mainMenu;
@@ -87,7 +87,7 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback{
                 mainMenu.update();
                 break;
             case LEVEL_STATE:
-                //
+                level.update();
                 break;
         }
     }
@@ -106,16 +106,15 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback{
                     mainMenu.draw(canvas);
                     break;
                 case LEVEL_STATE:
-                    //
+                    level.draw(canvas);
                     break;
             }
 
             canvas.restoreToCount(savedState);
-
         }
     }
 
-    void setLevel(Level l) {
-        level = l;
-    }
+    void setLevel(Level l) { level = l; }
+
+    public void setState(State state) { this.state = state; }
 }
