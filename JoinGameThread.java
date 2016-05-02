@@ -7,7 +7,6 @@ import java.io.IOException;
 public class JoinGameThread extends Thread {
     private final BluetoothSocket bluetoothSocket;
     private final BluetoothDevice bluetoothDevice;
-    private String mSocketType;
     private GameSurface v;
 
     public JoinGameThread(BluetoothDevice device, GameSurface v) {
@@ -23,7 +22,7 @@ public class JoinGameThread extends Thread {
 
     public void run() {
         v.getBluetoothAdapter().cancelDiscovery();
-        System.out.println("CLIENT: Starting connect...");
+        //System.out.println("CLIENT: Starting connect...");
         try {
             bluetoothSocket.connect();
         }
@@ -34,7 +33,7 @@ public class JoinGameThread extends Thread {
             catch (IOException e2) {}
             return;
         }
-        System.out.println("Join game socket created");
+        //System.out.println("Join game socket created");
         v.setBluetoothSocket(bluetoothSocket);
         v.setConnectedToServer(true);
     }

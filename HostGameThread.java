@@ -23,7 +23,7 @@ public class HostGameThread extends Thread{
     public void run() {
         BluetoothSocket bluetoothSocket = null;
         while (true) {
-            System.out.println("SERVER: Waiting for client");
+            //System.out.println("SERVER: Waiting for client");
             try {
                 bluetoothSocket = bluetoothServerSocket.accept();
             }
@@ -31,7 +31,7 @@ public class HostGameThread extends Thread{
                 break;
             }
             if (bluetoothSocket != null) {
-                System.out.println("Host game socket created");
+                //System.out.println("Host game socket created");
                 v.setBluetoothSocket(bluetoothSocket);
                 v.setClientConnected(true);
                 try {

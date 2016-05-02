@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public class GameSurface extends SurfaceView implements SurfaceHolder.Callback{
     public enum State {MENU_STATE, LEVEL_STATE};
-    public enum MethodName {CREATE_GAME, JOIN_GAME, START_SINGLE_PLAYER_GAME, START_MULTIPLAYER_GAME, EXIT_GAME, ROTATE_SHIP, SHOW_DEVICES}
+    public enum MethodName {CREATE_GAME, JOIN_GAME, START_SINGLE_PLAYER_GAME, START_MULTIPLAYER_GAME, EXIT_GAME, ROTATE_SHIP, FINISH_SETTING_UP, LAUNCH, SHOW_DEVICES, RETURN_TO_MENU}
     public static final int WIDTH = 800;
     public static final int HEIGHT = 480;
     private GameThread gameThread;
@@ -213,4 +213,6 @@ public class GameSurface extends SurfaceView implements SurfaceHolder.Callback{
     public void setCommunicationThread(CommunicationThread communicationThread) { this.communicationThread = communicationThread; }
 
     public void setReceiverRegistered(boolean receiverRegistered) { this.receiverRegistered = receiverRegistered; }
+
+    public void setMainMenu(MainMenu mainMenu) { this.mainMenu = mainMenu; }
 }

@@ -7,6 +7,10 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
+
 import java.util.HashSet;
 
 public class MainMenu {
@@ -15,8 +19,11 @@ public class MainMenu {
     private HashSet<MenuButton> buttons;
     private MenuButton lastChanged;
     private Bitmap background;
+    private Bitmap title;
     private int x = 0;
     private int y = 0;
+    private int titleX;
+    private int titleY;
     private MenuButton newMenuButton;
     private MenuButton singlePlayerGameMenuButton;
     private MenuButton multiPlayerGameMenuButton;
@@ -25,16 +32,21 @@ public class MainMenu {
     private MenuButton showBluetoothDevicesMenuButton;
     private SubState subState;
     private HashSet<DeviceListItem> deviceListItems;
+    private Paint paint;
 
     public MainMenu(GameSurface v) {
         subState = SubState.NORMAL;
         this.v = v;
+        v.setLevel(null);
         lastChanged = new MenuButton();
         buttons = new HashSet<MenuButton>();
         background = BitmapFactory.decodeResource(v.getResources(), R.drawable.menu_bg);
-        newMenuButton = new MenuButton(BitmapFactory.decodeResource(v.getResources(), R.drawable.button), 250, 40, v, GameSurface.MethodName.CREATE_GAME);
-        joinMenuButton = new MenuButton(BitmapFactory.decodeResource(v.getResources(), R.drawable.button), 250, 190, v, GameSurface.MethodName.JOIN_GAME);
-        exitMenuButton = new MenuButton(BitmapFactory.decodeResource(v.getResources(), R.drawable.button), 250, 340, v, GameSurface.MethodName.EXIT_GAME);
+        title = BitmapFactory.decodeResource(v.getResources(), R.drawable.menu_title);
+        titleX = (800 - title.getWidth()) / 2;
+        titleY = 30;
+        newMenuButton = new MenuButton(BitmapFactory.decodeResource(v.getResources(), R.drawable.new_game_button), 180, v, GameSurface.MethodName.CREATE_GAME);
+        joinMenuButton = new MenuButton(BitmapFactory.decodeResource(v.getResources(), R.drawable.join_game_button), 276, v, GameSurface.MethodName.JOIN_GAME);
+        exitMenuButton = new MenuButton(BitmapFactory.decodeResource(v.getResources(), R.drawable.exit_button), 372, v, GameSurface.MethodName.EXIT_GAME);
         buttons.add(newMenuButton);
         buttons.add(joinMenuButton);
         buttons.add(exitMenuButton);
@@ -53,6 +65,7 @@ public class MainMenu {
             for (DeviceListItem d : deviceListItems)//poboljšati ovo da razmatra i ostale događaje
             if (y >= d.getY() && y <= d.getY() + d.getBackground().getHeight())
                 if (x >= d.getX() && x <= d.getX() + d.getBackground().getWidth()) {
+                    System.out.println(d.getBluetoothDevice().getName());
                     joinMultiPlayerGame(d.getBluetoothDevice());
                     break;
                 }
@@ -102,15 +115,16 @@ public class MainMenu {
 
     void createGame() {
         System.out.println("Create");
-        singlePlayerGameMenuButton = new MenuButton(BitmapFactory.decodeResource(v.getResources(), R.drawable.button), 250, 40, v, GameSurface.MethodName.START_SINGLE_PLAYER_GAME);
-        multiPlayerGameMenuButton = new MenuButton(BitmapFactory.decodeResource(v.getResources(), R.drawable.button), 250, 190, v, GameSurface.MethodName.START_MULTIPLAYER_GAME);
+        singlePlayerGameMenuButton = new MenuButton(BitmapFactory.decodeResource(v.getResources(), R.drawable.singleplayer_button), 180, v, GameSurface.MethodName.START_SINGLE_PLAYER_GAME);
+        multiPlayerGameMenuButton = new MenuButton(BitmapFactory.decodeResource(v.getResources(), R.drawable.multiplayer_button), 276, v, GameSurface.MethodName.START_MULTIPLAYER_GAME);
         buttons.clear();
         buttons.add(singlePlayerGameMenuButton);
         buttons.add(multiPlayerGameMenuButton);
     }
 
     void startSinglePlayerGame() {
-        Level l = new Level(new Human(), new Bot(), v);
+        Level l = new Level(new Bot(v), Level.EnemyType.BOT, v);
+        l.initialization(false);
         v.setLevel(l);
         v.setState(GameSurface.State.LEVEL_STATE);
     }
@@ -130,10 +144,10 @@ public class MainMenu {
     void showDevices() {
         int counter = 0;
         deviceListItems.clear();
-        for(BluetoothDevice b : Game.bluetoothDevices/*((Game)v.getContext()).getBluetoothDevices()*/) {
+        for(BluetoothDevice b : Game.bluetoothDevices) {
             System.out.println(b.getName() + " " + b.getAddress());
             counter++;
-            deviceListItems.add(new DeviceListItem(BitmapFactory.decodeResource(v.getResources(), R.drawable.device_list_item), 20 + 410 * (counter / 6), 150 + 65 * (counter % 6), b, v));
+            deviceListItems.add(new DeviceListItem(BitmapFactory.decodeResource(v.getResources(), R.drawable.device_list_item), 20 + 410 * (counter / 6), 150 + 65 * (counter % 6), b, paint));
         }
     }
 
@@ -151,26 +165,32 @@ public class MainMenu {
     public void update() {//!
         for(MenuButton b : buttons)
             b.update();
-        /*for(DeviceListItem d : deviceListItems)//Trebaće kad stavke budu reagovale na sve događaje
-            d.update();*/
-        if(v.isClientConnected()) {//Možda dodati autentikaciju?
+        if(v.isClientConnected()) {
             subState = SubState.CLIENT_CONNECTED;
-            v.setHostGameThread(null);//Da li ovo može?
+            v.setHostGameThread(null);
         }
-        else if(v.isConnectedToServer()) {//Možda dodati autentikaciju?
+        else if(v.isConnectedToServer()) {
             subState = SubState.CONNECTED_TO_SERVER;
-            v.setJoinGameThread(null);//Da li ovo može?
+            v.setJoinGameThread(null);
         }
-        switch (subState) {//možda ovaj switch može da se izbaci i sve uradi u prethodnim if-ovima
+        switch (subState) {
             case CLIENT_CONNECTED:
                 v.setCommunicationThread(new CommunicationThread(v.getBluetoothSocket()));
                 v.getCommunicationThread().start();
-                System.out.println("Server started communication");
+                Level l1 = new Level(new Human(v), Level.EnemyType.HUMAN, v);
+                l1.initialization(false);
+                v.getCommunicationThread().setLevel(l1);
+                v.setLevel(l1);
+                v.setState(GameSurface.State.LEVEL_STATE);
                 break;
             case CONNECTED_TO_SERVER:
                 v.setCommunicationThread(new CommunicationThread(v.getBluetoothSocket()));
                 v.getCommunicationThread().start();
-                System.out.println("Client started communication");
+                Level l2 = new Level(new Human(v), Level.EnemyType.HUMAN, v);
+                l2.initialization(true);
+                v.getCommunicationThread().setLevel(l2);
+                v.setLevel(l2);
+                v.setState(GameSurface.State.LEVEL_STATE);
                 break;
             case WAITING_FOR_BLUETOOTH_HOST:
                 if(BluetoothAdapter.getDefaultAdapter().isEnabled()) {
@@ -181,13 +201,17 @@ public class MainMenu {
                 break;
             case WAITING_FOR_BLUETOOTH_JOIN:
                 if(BluetoothAdapter.getDefaultAdapter().isEnabled()) {
-                    System.out.println("Bluetooth enabled Join");
+                    //System.out.println("Bluetooth enabled Join");
                     v.listPairedBluetoothDevices();
                     /*IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
                     ((Game) v.getContext()).registerReceiver(((Game) v.getContext()).getBroadcastReceiver(), filter);
                     v.setReceiverRegistered(true);
                     v.getBluetoothAdapter().startDiscovery();*/
-                    showBluetoothDevicesMenuButton = new MenuButton(BitmapFactory.decodeResource(v.getResources(), R.drawable.button), 250, 40, v, GameSurface.MethodName.SHOW_DEVICES);
+                    paint = new Paint();
+                    paint.setColor(Color.BLACK);
+                    paint.setTextSize(30);
+                    paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+                    showBluetoothDevicesMenuButton = new MenuButton(BitmapFactory.decodeResource(v.getResources(), R.drawable.show_paired_devices_button), 180, v, GameSurface.MethodName.SHOW_DEVICES);
                     buttons.clear();
                     buttons.add(showBluetoothDevicesMenuButton);
                     subState = SubState.CHOOSING_SERVER;
@@ -198,24 +222,25 @@ public class MainMenu {
 
     public void draw(Canvas canvas) {
         canvas.drawBitmap(background, x, y, null);
+        canvas.drawBitmap(title, titleX, titleY, null);
         for(MenuButton b : buttons)
             b.draw(canvas);
         switch (subState) {
             case WAITING_FOR_CLIENT:
-                System.out.println("Waiting for client");
+                //System.out.println("Waiting for client");
                 break;
             case CLIENT_CONNECTED:
-                System.out.println("Client connected");
+                //System.out.println("Client connected");
                 break;
             case CHOOSING_SERVER:
                 for(DeviceListItem d : deviceListItems)
                     d.draw(canvas);
                 break;
             case WAITING_FOR_SERVER:
-                System.out.println("Waiting for server");
+                //System.out.println("Waiting for server");
                 break;
             case CONNECTED_TO_SERVER:
-                System.out.println("Connected to server");
+                //System.out.println("Connected to server");
                 break;
         }
     }

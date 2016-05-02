@@ -10,6 +10,8 @@ public class CommunicationThread extends Thread {
     private final BluetoothSocket bluetoothSocket;
     private final InputStream inputStream;
     private final OutputStream outputStream;
+    private String message;
+    private Level level;
 
     public CommunicationThread(BluetoothSocket socket) {
         bluetoothSocket = socket;
@@ -30,8 +32,9 @@ public class CommunicationThread extends Thread {
         while (true) {
             try {
                 bytes = inputStream.read(buffer);
-                System.out.println("Primljeno: " + new String(buffer));
-                //obraditi poruku
+                message = new String(buffer, 0, bytes);
+                //System.out.println("Primljeno: " + message);
+                level.processMessage(message);
             }
             catch (IOException e) {
                 break;
@@ -42,7 +45,7 @@ public class CommunicationThread extends Thread {
     public void write(byte[] bytes) {
         try {
             outputStream.write(bytes);
-            System.out.println("Poslato: " + new String(bytes));
+            System.out.println("Poslato: " + new String(bytes).trim());
         }
         catch (IOException e) {}
     }
@@ -53,4 +56,6 @@ public class CommunicationThread extends Thread {
         }
         catch (IOException e) {}
     }
+
+    public void setLevel(Level level) { this.level = level; }
 }

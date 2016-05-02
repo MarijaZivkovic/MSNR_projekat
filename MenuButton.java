@@ -12,13 +12,13 @@ public class MenuButton extends GameButton{
 
     public MenuButton() {}
 
-    public MenuButton(Bitmap b, int x, int y, GameSurface v, GameSurface.MethodName m) {
+    public MenuButton(Bitmap b, int y, GameSurface v, GameSurface.MethodName m) {
         background = new Bitmap[2];
         background[0] = b;
+        x = (800 - b.getWidth()) / 2;
         Matrix matrix = new Matrix();
         matrix.postScale(1.2f, 1);
         background[1] = Bitmap.createBitmap(background[0], 0, 0, background[0].getWidth(), background[0].getHeight(), matrix, false);
-        this.x = x;
         this.y = y;
         methodName = m;
     }

@@ -30,6 +30,8 @@ public class GameButton {
 
     public void setBackground(Bitmap background) { this.background = background; }
 
+    public void setX(int x) { this.x = x; }
+
     public int getX() { return x; }
 
     public int getY() { return y; }
